@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbit</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #4267B2;
+    color: white;
+    padding: 1em 0;
+}
+
+button {
+    background-color: #4267B2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #365899;
+}
+
+#gallery {
+    margin-top: 20px;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Orbit</h1>
+        <a href="index.html">concurso de Memes</a>
+    </header>
+    <main>
+        <button id="generateMemeBtn">Gerar Meme</button>
+        <div id="gallery"></div>
+    </main>
+    <script>
+        document.getElementById('generateMemeBtn').addEventListener('click', generateMeme);
+
+async function generateMeme() {
+    const memeContainer = document.getElementById('gallery');
+    memeContainer.innerHTML = 'Carregando...';
+
+    try {
+        const response = await fetch('https://api.imgflip.com/get_memes');
+        const data = await response.json();
+        const memes = data.data.memes;
+        const randomMeme = memes[Math.floor(Math.random() * memes.length)];
+
+        const memeImage = document.createElement('img');
+        memeImage.src = randomMeme.url;
+        memeImage.alt = randomMeme.name;
+        memeContainer.innerHTML = '';
+        memeContainer.appendChild(memeImage);
+
+        const topText = prompt('Digite o texto superior:');
+        const bottomText = prompt('Digite o texto inferior:');
+
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        const image = new Image();
+        image.src = randomMeme.url;
+        image.onload = () => {
+            canvas.width = image.width;
+            canvas.height = image.height;
+            context.drawImage(image, 0, 0);
+
+            context.font = '30px Arial';
+            context.fillStyle = 'white';
+            context.textAlign = 'center';
+            context.fillText(topText, canvas.width / 2, 40);
+            context.fillText(bottomText, canvas.width / 2, canvas.height - 20);
+
+            memeContainer.innerHTML = '';
+            memeContainer.appendChild(canvas);
+        };
+    } catch (error) {
+        memeContainer.innerHTML = 'Erro ao carregar meme.';
+        console.error(error);
+    }
+}
+
+    </script>
+</body>
+</html>
+
